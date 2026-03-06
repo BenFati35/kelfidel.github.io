@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benim Site</title>
+    <style>
+        /* Fotoğrafları yan yana getiren sihirli kısım */
+        .foto-kapsayici {
+            display: flex;
+            justify-content: center; /* Ortalar */
+            gap: 20px; /* Aralarındaki boşluk */
+            padding: 20px;
+            flex-wrap: wrap; /* Ekran daralınca alt alta geçer */
+        }
+
+        .foto-kapsayici img {
+            max-width: 45%; /* Yan yana durmaları için genişlik */
+            height: auto;
+            border-radius: 10px; /* Köşeleri hafif yumuşatır, şık durur */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="foto-kapsayici">
+        <img src="foto1.jpg" alt="Birinci Fotoğraf">
+        <img src="foto2.jpg" alt="İkinci Fotoğraf">
+    </div>
+
+</body>
+</html>
