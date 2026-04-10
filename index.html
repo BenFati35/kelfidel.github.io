@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BLI ACCOUNT | Dashboard</title>
+    <title>BLI ACCOUNT | Hesabım</title>
 
     <!-- Firebase & Libraries -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -20,9 +21,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #ffffff;
-            color: #000000;
-            overflow-x: hidden;
+            background: #f5f5f7;
+            color: #1d1d1f;
         }
 
         /* Navbar */
@@ -31,230 +31,278 @@
             top: 0;
             left: 0;
             width: 100%;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 18px 6%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid #e9e9ed;
+            padding: 16px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 1000;
-            transition: all 0.3s ease;
+            z-index: 100;
         }
 
-        .logo img {
-            height: 48px;
+        .logo {
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            letter-spacing: -1px;
             cursor: pointer;
         }
 
-        .nav-buttons {
+        .logo span {
+            color: #ff2d2d;
+        }
+
+        .nav-links {
             display: flex;
-            gap: 12px;
+            gap: 32px;
             align-items: center;
         }
 
-        .nav-btn {
-            background: transparent;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 50%;
+        .nav-links a {
+            text-decoration: none;
+            color: #1d1d1f;
+            font-weight: 500;
             transition: 0.2s;
-            color: #000;
         }
 
-        .nav-btn:hover {
-            background: #f0f0f0;
+        .nav-links a:hover {
+            color: #ff2d2d;
         }
 
-        /* Ana içerik */
-        .container {
-            max-width: 1400px;
-            margin: 120px auto 80px;
+        .logout-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #86868b;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            color: #ff2d2d;
+        }
+
+        /* Ana container */
+        .dashboard-container {
+            max-width: 1280px;
+            margin: 100px auto 60px;
             padding: 0 5%;
         }
 
-        /* Hoşgeldin kartı */
-        .welcome-card {
-            background: #f8f8f8;
-            border-radius: 36px;
-            padding: 48px 40px;
-            margin-bottom: 60px;
-            border: 1px solid #eee;
+        /* Hoşgeldin banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #1d1d1f 0%, #2c2c2e 100%);
+            border-radius: 28px;
+            padding: 40px 48px;
+            color: white;
+            margin-bottom: 48px;
         }
 
-        .welcome-card h1 {
-            font-family: 'Orbitron', monospace;
-            font-size: 2.8rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        .welcome-card p {
-            font-size: 1.2rem;
-            color: #555;
-            margin-top: 12px;
-        }
-
-        .badge-user {
-            background: #000;
-            color: #fff;
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            display: inline-block;
-            margin-top: 20px;
-            font-weight: 600;
-        }
-
-        /* Grid kartlar */
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 60px;
-        }
-
-        .feature-card {
-            background: #ffffff;
-            border: 1px solid #eaeaea;
-            border-radius: 32px;
-            padding: 32px;
-            transition: all 0.25s ease;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-8px);
-            border-color: #000;
-            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.05);
-        }
-
-        .feature-icon {
-            font-size: 42px;
-            margin-bottom: 20px;
-            color: #000;
-        }
-
-        .feature-card h3 {
-            font-size: 1.6rem;
+        .welcome-banner h1 {
+            font-size: 2.2rem;
             font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        /* Panel (sağ açılır) */
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(6px);
-            z-index: 2000;
-            display: none;
-            opacity: 0;
-            transition: 0.3s;
-        }
-
-        .side-panel {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 420px;
-            max-width: 90vw;
-            height: 100%;
-            background: #fff;
-            z-index: 2001;
-            transition: 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            padding: 30px 28px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.08);
-        }
-
-        .side-panel.active {
-            right: 0;
-        }
-
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .panel-header h2 {
-            font-family: 'Orbitron';
-            font-size: 1.6rem;
-        }
-
-        .close-panel {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-        }
-
-        /* Form stilleri */
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            display: block;
             margin-bottom: 8px;
         }
 
-        .input-group input {
-            width: 100%;
-            padding: 16px;
+        .welcome-banner p {
+            opacity: 0.7;
+            font-size: 1rem;
+        }
+
+        .member-badge {
+            background: rgba(255, 255, 255, 0.15);
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            margin-top: 16px;
+        }
+
+        /* Sekmeler */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid #e9e9ed;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            color: #86868b;
+            transition: 0.2s;
+            border-radius: 30px;
+        }
+
+        .tab-btn.active {
+            background: #1d1d1f;
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #1d1d1f;
+        }
+
+        /* Kart stilleri */
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e9e9ed;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .btn-edit {
+            background: none;
+            border: none;
+            color: #ff2d2d;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* Sipariş öğesi */
+        .order-item {
+            border: 1px solid #f0f0f0;
             border-radius: 20px;
-            border: 1px solid #ddd;
-            background: #fafafa;
-            font-size: 15px;
+            padding: 20px;
+            margin-bottom: 16px;
             transition: 0.2s;
         }
 
-        .input-group input:focus {
-            border-color: #000;
+        .order-item:hover {
+            border-color: #ddd;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .order-id {
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .order-status {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .order-status.shipped {
+            background: #fff3e0;
+            color: #ed6c02;
+        }
+
+        .order-status.delivered {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* Adres kartı */
+        .address-card {
+            border: 1px solid #e9e9ed;
+            border-radius: 20px;
+            padding: 20px;
+            background: #fafafc;
+        }
+
+        /* Form stilleri */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #86868b;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e9e9ed;
+            border-radius: 16px;
+            font-family: inherit;
+            transition: 0.2s;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
             outline: none;
-            background: #fff;
+            border-color: #1d1d1f;
         }
 
         .btn-primary {
-            width: 100%;
-            background: #000;
-            color: #fff;
-            padding: 16px;
-            border-radius: 40px;
-            font-weight: 800;
-            font-size: 1rem;
-            cursor: pointer;
+            background: #1d1d1f;
+            color: white;
             border: none;
+            padding: 14px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
             transition: 0.2s;
-            margin-top: 12px;
         }
 
         .btn-primary:hover {
-            background: #ff3333;
+            background: #ff2d2d;
             transform: scale(1.01);
         }
 
-        .toast-msg {
+        .btn-secondary {
+            background: none;
+            border: 1px solid #e9e9ed;
+            padding: 14px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .toast {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: #000;
-            color: #fff;
+            background: #1d1d1f;
+            color: white;
             padding: 14px 24px;
             border-radius: 60px;
-            font-weight: 600;
-            z-index: 3000;
+            font-weight: 500;
+            z-index: 1000;
             animation: slideUp 0.3s ease;
         }
 
@@ -269,106 +317,36 @@
             }
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #86868b;
+        }
+
         footer {
             text-align: center;
-            padding: 50px 20px;
-            border-top: 1px solid #eee;
+            padding: 40px;
+            border-top: 1px solid #e9e9ed;
             margin-top: 60px;
-            color: #777;
+            color: #86868b;
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
 
-<div class="navbar">
-    <div class="logo" onclick="location.href='/'">
-        <img src="logo1616.png" alt="BLI ACCOUNT">
+<nav class="navbar">
+    <div class="logo" onclick="location.href='/'">BLI<span>.</span></div>
+    <div class="nav-links">
+        <a href="#" onclick="showTab('orders')">Siparişlerim</a>
+        <a href="#" onclick="showTab('addresses')">Adreslerim</a>
+        <a href="#" onclick="showTab('profile')">Profilim</a>
+        <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
     </div>
-    <div class="nav-buttons">
-        <button class="nav-btn" onclick="openPanel('searchPanel')"><i class="fa-solid fa-search"></i></button>
-        <button class="nav-btn" onclick="openPanel('cartPanel')"><i class="fa-solid fa-bag-shopping"></i><span id="cartCount" style="font-size:12px; margin-left:4px;">0</span></button>
-        <button class="nav-btn" onclick="openPanel('userPanel')"><i class="fa-solid fa-circle-user"></i></button>
-    </div>
-</div>
+</nav>
 
-<!-- Overlay & Panels -->
-<div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
-
-<!-- Kullanıcı Paneli -->
-<div class="side-panel" id="userPanel">
-    <div class="panel-header">
-        <h2>HESAP</h2>
-        <button class="close-panel" onclick="closeAllPanels()">✕</button>
-    </div>
-    <div id="authSection">
-        <!-- giriş formu -->
-        <div id="loginForm">
-            <div class="input-group"><label>E-posta</label><input type="email" id="loginEmail" placeholder="ornek@bli.com"></div>
-            <div class="input-group"><label>Şifre</label><input type="password" id="loginPass" placeholder="••••"></div>
-            <button class="btn-primary" onclick="handleLogin()">Giriş Yap</button>
-            <p style="text-align:center; margin-top:20px;"><a href="#" onclick="showRegister()">Hesabın yok mu? Kaydol</a></p>
-        </div>
-        <div id="registerForm" style="display:none;">
-            <div class="input-group"><label>Ad Soyad</label><input type="text" id="regName"></div>
-            <div class="input-group"><label>E-posta</label><input type="email" id="regEmail"></div>
-            <div class="input-group"><label>Şifre</label><input type="password" id="regPass"></div>
-            <button class="btn-primary" onclick="handleRegister()">Kaydol</button>
-            <p style="text-align:center; margin-top:20px;"><a href="#" onclick="showLogin()">Zaten hesabın var? Giriş yap</a></p>
-        </div>
-        <div id="profileInfo" style="display:none;">
-            <p><strong>Hoşgeldin, <span id="userNameDisplay">...</span></strong></p>
-            <p id="userEmailDisplay" style="color:#555; margin:10px 0;"></p>
-            <button class="btn-primary" onclick="logoutUser()">Çıkış Yap</button>
-        </div>
-    </div>
-</div>
-
-<!-- Sepet Paneli -->
-<div class="side-panel" id="cartPanel">
-    <div class="panel-header">
-        <h2>SEPET</h2>
-        <button class="close-panel" onclick="closeAllPanels()">✕</button>
-    </div>
-    <div id="cartItemsList" style="flex:1; overflow-y:auto;">Sepetin boş.</div>
-    <div style="margin-top:20px;"><strong>Toplam: <span id="cartTotal">0 TL</span></strong></div>
-    <button class="btn-primary" style="margin-top:20px;" onclick="checkout()">Ödemeye Geç</button>
-</div>
-
-<!-- Arama Paneli -->
-<div class="side-panel" id="searchPanel">
-    <div class="panel-header">
-        <h2>ARA</h2>
-        <button class="close-panel" onclick="closeAllPanels()">✕</button>
-    </div>
-    <input type="text" id="searchInput" placeholder="Ürün ara..." style="width:100%; padding:14px; border-radius:40px; border:1px solid #ddd; margin-bottom:20px;">
-    <div id="searchResults">Sonuçlar burada...</div>
-</div>
-
-<!-- Ana içerik -->
-<div class="container">
-    <div class="welcome-card">
-        <h1>BLI ACCOUNT</h1>
-        <p>Yeni nesil profesyonel hesap yönetim platformu.</p>
-        <div class="badge-user" id="greetingMsg">Giriş yapmadın</div>
-    </div>
-
-    <div class="grid-3">
-        <div class="feature-card" onclick="openPanel('userPanel')">
-            <div class="feature-icon"><i class="fa-solid fa-id-card"></i></div>
-            <h3>Profilim</h3>
-            <p>Hesap bilgilerini düzenle, siparişlerini gör.</p>
-        </div>
-        <div class="feature-card" onclick="openPanel('cartPanel')">
-            <div class="feature-icon"><i class="fa-solid fa-cart-shopping"></i></div>
-            <h3>Sepetim</h3>
-            <p>Ürünleri incele ve satın al.</p>
-        </div>
-        <div class="feature-card" onclick="location.href='/support'">
-            <div class="feature-icon"><i class="fa-solid fa-headset"></i></div>
-            <h3>Destek</h3>
-            <p>7/24 premium müşteri hizmetleri.</p>
-        </div>
-    </div>
+<div class="dashboard-container" id="dashboardContainer">
+    <!-- Buraya giriş yapılmamışsa login ekranı gelir, giriş yapılmışsa dashboard -->
 </div>
 
 <footer>
@@ -376,7 +354,7 @@
 </footer>
 
 <script>
-    // ---------- FIREBASE ----------
+    // ---------- FIREBASE KONFIG ----------
     const firebaseConfig = {
         apiKey: "AIzaSyB0PdRozDzBzSyuuNIRG67xg-W3UJBfJD8",
         authDomain: "bliesports.firebaseapp.com",
@@ -385,135 +363,317 @@
         appId: "1:880767104142:web:5edbe111f42f16ab1545df"
     };
     firebase.initializeApp(firebaseConfig);
-    const authFire = firebase.auth();
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    // ---------- SEPET ----------
-    let cart = JSON.parse(localStorage.getItem('bli_cart')) || [];
-    function updateCartUI() {
-        const container = document.getElementById('cartItemsList');
-        const totalSpan = document.getElementById('cartTotal');
-        const countSpan = document.getElementById('cartCount');
-        if(!container) return;
-        if(cart.length === 0) {
-            container.innerHTML = 'Sepetin boş.';
-            totalSpan.innerText = '0 TL';
-            if(countSpan) countSpan.innerText = '0';
-            return;
-        }
-        let total = 0;
-        let html = '';
-        cart.forEach((item, idx) => {
-            total += item.price;
-            html += `<div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #eee; padding:8px 0;">
-                        <div><strong>${item.name}</strong><br>${item.price} TL</div>
-                        <button onclick="removeFromCart(${idx})" style="background:none; border:none; cursor:pointer;">🗑️</button>
-                    </div>`;
-        });
-        container.innerHTML = html;
-        totalSpan.innerText = total + ' TL';
-        if(countSpan) countSpan.innerText = cart.length;
-        localStorage.setItem('bli_cart', JSON.stringify(cart));
-    }
-    function removeFromCart(idx) { cart.splice(idx,1); updateCartUI(); }
-    function addToCart(name, price) { cart.push({name, price}); updateCartUI(); showToast(name + " sepete eklendi."); }
-    function checkout() { alert("Ödeme sayfasına yönlendiriliyorsunuz (demo)."); }
+    let currentUser = null;
+    let currentTab = 'orders';
+
+    // ---------- TOAST MESAJ ----------
     function showToast(msg) {
-        let t = document.createElement('div');
-        t.className = 'toast-msg';
-        t.innerText = msg;
-        document.body.appendChild(t);
-        setTimeout(()=>t.remove(), 2500);
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
     }
 
-    // ---------- PANEL YÖNETİMİ ----------
-    function openPanel(id) {
-        closeAllPanels();
-        const panel = document.getElementById(id);
-        const overlay = document.getElementById('overlay');
-        if(panel) panel.classList.add('active');
-        if(overlay) { overlay.style.display = 'block'; setTimeout(()=> overlay.style.opacity = '1', 10); }
-    }
-    function closeAllPanels() {
-        document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('active'));
-        const ov = document.getElementById('overlay');
-        if(ov) { ov.style.opacity = '0'; setTimeout(()=> ov.style.display = 'none', 300); }
+    // ---------- GİRİŞ / KAYIT EKRANI (Nike tarzı) ----------
+    function renderLoginScreen() {
+        return `
+            <div style="max-width: 500px; margin: 120px auto;">
+                <div class="card" style="text-align: center;">
+                    <h2 style="margin-bottom: 8px;">Hesabına Giriş Yap</h2>
+                    <p style="color:#86868b; margin-bottom: 32px;">BLI ailesine katıl, özel avantajları keşfet</p>
+                    
+                    <div id="loginForm">
+                        <div class="form-group">
+                            <label>E-posta</label>
+                            <input type="email" id="loginEmail" placeholder="ornek@bli.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Şifre</label>
+                            <input type="password" id="loginPass" placeholder="••••••••">
+                        </div>
+                        <button class="btn-primary" style="width:100%;" onclick="handleLogin()">Giriş Yap</button>
+                        <p style="margin: 20px 0; color:#86868b;">veya</p>
+                        <button class="btn-secondary" style="width:100%;" onclick="showRegisterForm()">Hesap Oluştur</button>
+                    </div>
+
+                    <div id="registerForm" style="display:none;">
+                        <div class="form-group">
+                            <label>Ad Soyad</label>
+                            <input type="text" id="regName" placeholder="Ahmet Yılmaz">
+                        </div>
+                        <div class="form-group">
+                            <label>E-posta</label>
+                            <input type="email" id="regEmail" placeholder="ornek@bli.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Şifre</label>
+                            <input type="password" id="regPass" placeholder="••••••••">
+                        </div>
+                        <button class="btn-primary" style="width:100%;" onclick="handleRegister()">Kaydol</button>
+                        <p style="margin-top:20px;"><a href="#" onclick="showLoginForm()" style="color:#ff2d2d;">Zaten hesabın var? Giriş yap</a></p>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
-    // ---------- AUTH ----------
-    function showRegister() { document.getElementById('loginForm').style.display='none'; document.getElementById('registerForm').style.display='block'; document.getElementById('profileInfo').style.display='none'; }
-    function showLogin() { document.getElementById('loginForm').style.display='block'; document.getElementById('registerForm').style.display='none'; document.getElementById('profileInfo').style.display='none'; }
-    
+    window.showLoginForm = function() {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+    };
+    window.showRegisterForm = function() {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+    };
+
     async function handleLogin() {
         const email = document.getElementById('loginEmail').value;
         const pass = document.getElementById('loginPass').value;
         try {
-            await authFire.signInWithEmailAndPassword(email, pass);
+            await auth.signInWithEmailAndPassword(email, pass);
             showToast("Giriş başarılı!");
-            updateUserUI();
-            closeAllPanels();
-        } catch(e) { showToast("Hata: " + e.message); }
+        } catch(e) {
+            showToast("Hata: " + e.message);
+        }
     }
+
     async function handleRegister() {
         const name = document.getElementById('regName').value;
         const email = document.getElementById('regEmail').value;
         const pass = document.getElementById('regPass').value;
+        if(!name || !email || !pass) {
+            showToast("Lütfen tüm alanları doldur");
+            return;
+        }
         try {
-            const cred = await authFire.createUserWithEmailAndPassword(email, pass);
-            await cred.user.updateProfile({displayName: name});
-            showToast("Kayıt tamamlandı!");
-            updateUserUI();
-            closeAllPanels();
-        } catch(e) { showToast("Hata: " + e.message); }
-    }
-    function logoutUser() { authFire.signOut(); showToast("Çıkış yapıldı."); updateUserUI(); closeAllPanels(); }
-    
-    function updateUserUI() {
-        const user = authFire.currentUser;
-        const loginDiv = document.getElementById('loginForm');
-        const regDiv = document.getElementById('registerForm');
-        const profileDiv = document.getElementById('profileInfo');
-        const greetingSpan = document.getElementById('greetingMsg');
-        if(user) {
-            loginDiv.style.display = 'none';
-            regDiv.style.display = 'none';
-            profileDiv.style.display = 'block';
-            document.getElementById('userNameDisplay').innerText = user.displayName || 'BLI Fan';
-            document.getElementById('userEmailDisplay').innerText = user.email;
-            greetingSpan.innerText = `Hoşgeldin, ${user.displayName || 'Kullanıcı'}!`;
-        } else {
-            loginDiv.style.display = 'block';
-            regDiv.style.display = 'none';
-            profileDiv.style.display = 'none';
-            greetingSpan.innerText = 'Giriş yapmadın';
+            const cred = await auth.createUserWithEmailAndPassword(email, pass);
+            await cred.user.updateProfile({ displayName: name });
+            // Firestore'a kullanıcı bilgilerini kaydet
+            await db.collection('users').doc(cred.user.uid).set({
+                name: name,
+                email: email,
+                createdAt: new Date()
+            });
+            showToast("Hesabın oluşturuldu! Hoşgeldin.");
+        } catch(e) {
+            showToast("Hata: " + e.message);
         }
     }
-    authFire.onAuthStateChanged(()=> updateUserUI());
 
-    // ---------- ARAMA (demo) ----------
-    const productSample = [{name:"BLI V1 PRO", price:1899},{name:"ELITE JERSEY", price:749}];
-    function handleSearch() {
-        const q = document.getElementById('searchInput').value.toLowerCase();
-        const resDiv = document.getElementById('searchResults');
-        if(!q) { resDiv.innerHTML = 'Bir şeyler yaz...'; return; }
-        const filtered = productSample.filter(p => p.name.toLowerCase().includes(q));
-        if(filtered.length===0) resDiv.innerHTML = 'Sonuç yok';
-        else resDiv.innerHTML = filtered.map(p => `<div style="padding:12px; border-bottom:1px solid #eee;">${p.name} - ${p.price} TL <button onclick="addToCart('${p.name}',${p.price})">Sepete ekle</button></div>`).join('');
+    // ---------- ÇIKIŞ ----------
+    window.logout = async function() {
+        await auth.signOut();
+        showToast("Çıkış yapıldı.");
+    };
+
+    // ---------- DASHBOARD İÇERİKLERİ ----------
+    async function renderOrders() {
+        if(!currentUser) return '<div class="card"><p>Lütfen giriş yapın.</p></div>';
+        
+        // Örnek siparişler (Firestore'dan çekilecek - demo için statik)
+        // Gerçek uygulamada siparişler 'orders' koleksiyonunda saklanır
+        const dummyOrders = [
+            { id: "BLI-2401", date: "15 Mart 2026", total: 1899, status: "delivered", items: "BLI V1 PRO Mouse" },
+            { id: "BLI-2402", date: "28 Şubat 2026", total: 749, status: "shipped", items: "Elite Jersey V2" },
+            { id: "BLI-2403", date: "10 Ocak 2026", total: 2648, status: "delivered", items: "V1 PRO + Jersey" }
+        ];
+        
+        if(dummyOrders.length === 0) {
+            return `<div class="card empty-state"><i class="fa-solid fa-box-open" style="font-size: 48px; margin-bottom: 16px;"></i><p>Henüz siparişin yok.</p><button class="btn-primary" onclick="location.href='https://bliesports.github.io'">Alışverişe Başla</button></div>`;
+        }
+        
+        let html = `<div class="card"><div class="card-header"><h3>📦 Tüm Siparişlerim</h3></div>`;
+        dummyOrders.forEach(order => {
+            let statusText = order.status === 'delivered' ? 'Teslim Edildi' : (order.status === 'shipped' ? 'Kargoda' : 'Hazırlanıyor');
+            let statusClass = order.status === 'delivered' ? 'delivered' : (order.status === 'shipped' ? 'shipped' : '');
+            html += `
+                <div class="order-item">
+                    <div class="order-header">
+                        <span class="order-id">${order.id}</span>
+                        <span class="order-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div style="margin: 8px 0;">${order.items}</div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+                        <span style="color:#86868b;">${order.date}</span>
+                        <span style="font-weight: 700;">${order.total} TL</span>
+                    </div>
+                    <button class="btn-secondary" style="margin-top: 12px; padding: 8px 16px; font-size:0.8rem;" onclick="trackOrder('${order.id}')">Siparişi Takip Et</button>
+                </div>
+            `;
+        });
+        html += `</div>`;
+        return html;
     }
-    document.addEventListener('DOMContentLoaded', ()=>{
-        updateCartUI();
-        const searchInput = document.getElementById('searchInput');
-        if(searchInput) searchInput.addEventListener('input', handleSearch);
+    
+    window.trackOrder = function(orderId) {
+        showToast(`Sipariş ${orderId} takip sayfasına yönlendiriliyorsunuz.`);
+    };
+
+    async function renderAddresses() {
+        if(!currentUser) return '<div class="card"><p>Lütfen giriş yapın.</p></div>';
+        
+        // Firestore'dan adresleri çek (demo için localStorage)
+        let addresses = JSON.parse(localStorage.getItem(`addresses_${currentUser.uid}`)) || [];
+        
+        let html = `<div class="card"><div class="card-header"><h3>📍 Kayıtlı Adreslerim</h3><button class="btn-edit" onclick="showAddAddressModal()">+ Yeni Adres Ekle</button></div><div class="grid-2">`;
+        
+        if(addresses.length === 0) {
+            html += `<div class="empty-state" style="grid-column:1/-1;">Kayıtlı adresin yok.<br><button class="btn-primary" style="margin-top:16px;" onclick="showAddAddressModal()">Adres Ekle</button></div>`;
+        } else {
+            addresses.forEach((addr, idx) => {
+                html += `
+                    <div class="address-card">
+                        <div style="font-weight:700;">${addr.title || 'Adres'}</div>
+                        <div style="margin:8px 0; color:#555;">${addr.fullAddress}</div>
+                        <div>${addr.city} / ${addr.district}</div>
+                        <div style="margin-top:12px;">
+                            <button class="btn-edit" onclick="deleteAddress(${idx})">Sil</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        html += `</div></div>`;
+        return html;
+    }
+
+    window.showAddAddressModal = function() {
+        const title = prompt("Adres başlığı (Ev, İş, vb.)");
+        const fullAddress = prompt("Tam adres");
+        const city = prompt("İl");
+        const district = prompt("İlçe");
+        if(title && fullAddress && city && district) {
+            let addresses = JSON.parse(localStorage.getItem(`addresses_${currentUser.uid}`)) || [];
+            addresses.push({ title, fullAddress, city, district });
+            localStorage.setItem(`addresses_${currentUser.uid}`, JSON.stringify(addresses));
+            showToast("Adres eklendi!");
+            refreshDashboard();
+        }
+    };
+    
+    window.deleteAddress = function(idx) {
+        let addresses = JSON.parse(localStorage.getItem(`addresses_${currentUser.uid}`)) || [];
+        addresses.splice(idx, 1);
+        localStorage.setItem(`addresses_${currentUser.uid}`, JSON.stringify(addresses));
+        showToast("Adres silindi");
+        refreshDashboard();
+    };
+
+    async function renderProfile() {
+        if(!currentUser) return '<div class="card"><p>Lütfen giriş yapın.</p></div>';
+        
+        let userData = { name: currentUser.displayName || '', email: currentUser.email };
+        try {
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            if(doc.exists) userData = doc.data();
+        } catch(e) {}
+        
+        return `
+            <div class="card">
+                <div class="card-header">
+                    <h3>👤 Kişisel Bilgilerim</h3>
+                    <button class="btn-edit" onclick="editProfile()">Düzenle</button>
+                </div>
+                <div class="form-group">
+                    <label>Ad Soyad</label>
+                    <input type="text" id="profileName" value="${userData.name || ''}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>E-posta Adresi</label>
+                    <input type="email" value="${currentUser.email}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Telefon (isteğe bağlı)</label>
+                    <input type="tel" id="profilePhone" placeholder="+90 555 123 45 67" value="${userData.phone || ''}" disabled>
+                </div>
+                <button class="btn-primary" onclick="changePassword()">Şifre Değiştir</button>
+            </div>
+        `;
+    }
+    
+    window.editProfile = function() {
+        const nameInput = document.getElementById('profileName');
+        const phoneInput = document.getElementById('profilePhone');
+        if(nameInput.disabled) {
+            nameInput.disabled = false;
+            phoneInput.disabled = false;
+            showToast("Bilgilerini düzenleyebilirsin, kaydetmek için tekrar tıkla.");
+        } else {
+            const newName = nameInput.value;
+            const newPhone = phoneInput.value;
+            currentUser.updateProfile({ displayName: newName }).then(async () => {
+                await db.collection('users').doc(currentUser.uid).set({ name: newName, phone: newPhone, email: currentUser.email }, { merge: true });
+                showToast("Profil güncellendi!");
+                nameInput.disabled = true;
+                phoneInput.disabled = true;
+                refreshDashboard();
+            }).catch(e => showToast("Hata: " + e.message));
+        }
+    };
+    
+    window.changePassword = function() {
+        const newPass = prompt("Yeni şifrenizi girin");
+        if(newPass && newPass.length > 5) {
+            currentUser.updatePassword(newPass).then(() => showToast("Şifre değiştirildi!")).catch(e => showToast("Hata: " + e.message));
+        } else {
+            showToast("Şifre en az 6 karakter olmalı");
+        }
+    };
+
+    // ---------- TAB YÖNETİMİ ----------
+    window.showTab = async function(tab) {
+        currentTab = tab;
+        const container = document.getElementById('dashboardContainer');
+        if(!currentUser) return;
+        
+        let content = '';
+        if(tab === 'orders') content = await renderOrders();
+        else if(tab === 'addresses') content = await renderAddresses();
+        else if(tab === 'profile') content = await renderProfile();
+        
+        const dashboardHtml = `
+            <div class="welcome-banner">
+                <h1>Merhaba, ${currentUser.displayName?.split(' ')[0] || 'BLI Kullanıcısı'} 👋</h1>
+                <p>Hesabını yönet, siparişlerini takip et ve avantajları keşfet.</p>
+                <div class="member-badge"><i class="fa-regular fa-gem"></i> BLI Premium Üye</div>
+            </div>
+            <div class="tabs">
+                <button class="tab-btn ${tab === 'orders' ? 'active' : ''}" onclick="showTab('orders')">Siparişlerim</button>
+                <button class="tab-btn ${tab === 'addresses' ? 'active' : ''}" onclick="showTab('addresses')">Adreslerim</button>
+                <button class="tab-btn ${tab === 'profile' ? 'active' : ''}" onclick="showTab('profile')">Profilim</button>
+            </div>
+            ${content}
+        `;
+        container.innerHTML = dashboardHtml;
+    };
+
+    async function refreshDashboard() {
+        if(currentUser) await showTab(currentTab);
+    }
+
+    // ---------- ANA RENDER (Giriş kontrolü) ----------
+    function renderApp() {
+        const container = document.getElementById('dashboardContainer');
+        if(currentUser) {
+            showTab(currentTab);
+        } else {
+            container.innerHTML = renderLoginScreen();
+        }
+    }
+
+    // ---------- AUTH STATE LISTENER ----------
+    auth.onAuthStateChanged(async (user) => {
+        currentUser = user;
+        renderApp();
     });
-    window.addToCart = addToCart;
-    window.removeFromCart = removeFromCart;
+
+    // Global fonksiyonları window'a bağla
     window.handleLogin = handleLogin;
     window.handleRegister = handleRegister;
-    window.logoutUser = logoutUser;
-    window.showRegister = showRegister;
-    window.showLogin = showLogin;
-    window.openPanel = openPanel;
-    window.closeAllPanels = closeAllPanels;
-    window.checkout = checkout;
 </script>
 </body>
-                                                                     </html>
+    </html>
